@@ -25,6 +25,7 @@ rich-text representation — see [Known Limitations](#known-limitations).
 - [How It Works](#how-it-works)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [Testing](#testing)
 - [Usage](#usage)
 - [Troubleshooting](#troubleshooting)
 - [Known Limitations](#known-limitations)
@@ -103,6 +104,19 @@ it to `/Applications/StripFormat.app`, and re-registers it with Launch Services 
 
 ---
 
+## Testing
+
+```sh
+swift test
+```
+
+`ServiceProvider`'s core transform logic (`ServiceProvider.stripFormat(on:)`) is covered
+by `Tests/StripFormatTests` against a fake pasteboard conforming to `PasteboardWriting`.
+The `@objc` Services entry point itself and the real system-pasteboard integration are
+still verified by hand — see [Troubleshooting](#troubleshooting).
+
+---
+
 ## Usage
 
 There's no CLI — StripFormat has no `main.swift` argument parsing; it's invoked entirely
@@ -151,8 +165,10 @@ the Service). If the menu item doesn't appear or invoking it does nothing:
 - **No configurable behavior** — the output is always exactly the pasteboard's
   plain-text string; there's no option to, say, preserve line breaks differently or
   strip only some formatting.
-- **No automated tests** — this is a one-file app with no test target; every change is
-  verified by hand (see [Troubleshooting](#troubleshooting)).
+- **Partial automated coverage** — `ServiceProvider.stripFormat(on:)`'s guard/logging
+  logic has unit tests (`Tests/StripFormatTests`) against a fake pasteboard, but the
+  `@objc` Services entry point itself and the real system-pasteboard integration are
+  still verified by hand (see [Troubleshooting](#troubleshooting)).
 - **Services-menu caching** — see the gotcha in [Usage](#usage); this is a macOS
   behavior, not something StripFormat can work around.
 
@@ -160,7 +176,8 @@ the Service). If the menu item doesn't appear or invoking it does nothing:
 
 ## Architecture
 
-Single-file Swift executable (`Sources/StripFormat/main.swift`), packaged as an `.app`
+A small Swift executable — `Sources/StripFormat/main.swift` for the app bootstrap,
+`Sources/StripFormat/ServiceProvider.swift` for the Service logic — packaged as an `.app`
 bundle (via `build.sh` + `Info.plist`) rather than shipped as a plain CLI binary, because
 macOS Services only work from an app bundle registered with Launch Services.
 
@@ -183,11 +200,14 @@ sequenceDiagram
 - `Info.plist` declares the `NSServices` entry: menu title "Strip Text Format",
   `NSMessage` `stripFormat`, sending/returning `NSStringPboardType`. This is what makes
   the app discoverable in the system Services menu.
-- `main.swift` defines `ServiceProvider`, whose `@objc stripFormat(_:userData:error:)`
+- `ServiceProvider.swift` defines `ServiceProvider`, whose `@objc stripFormat(_:userData:error:)`
   method signature must match the `NSMessage` name in `Info.plist` — AppKit invokes it by
   Objective-C selector name via `NSApplication.servicesProvider`, so the two stay coupled
   even though nothing in the Swift code references the plist directly. `ServiceProvider`
-  is declared `final` since it's never subclassed.
+  is declared `final` since it's never subclassed. The core transform
+  logic is a separate `static func stripFormat(on:)` taking a `PasteboardWriting` protocol
+  instead of a concrete `NSPasteboard`, so it can be exercised in `StripFormatTests`
+  without a real pasteboard.
 
 ---
 
