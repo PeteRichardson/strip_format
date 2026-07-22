@@ -39,8 +39,11 @@ app bundle registered with Launch Services.
   signature must match the `NSMessage` name in `Info.plist` — AppKit invokes it by Objective-C
   selector name via `NSApplication.servicesProvider`, so the two are coupled even though nothing
   in the Swift code references the plist directly.
-- The actual text transform happens by reading `NSPasteboard` string content, mutating it, and
-  writing it back to the same pasteboard for the calling app to paste in.
+- The actual "stripping" isn't a transformation of the text at all: `stripFormat` reads only
+  the plain-text (`public.utf8-plain-text`) pasteboard representation and writes that exact
+  same string back unchanged. Whatever richer representations (RTF/HTML) the original
+  selection also carried are simply never read, so they're dropped — the effect comes from
+  which representation is read, not from any mutation of the string itself.
 
 When changing the transform logic, edit the body of `stripFormat` in `main.swift`. When changing
 the menu label, invocation name, or supported pasteboard types, edit `Info.plist`'s `NSServices`
