@@ -152,6 +152,9 @@ the Service). If the menu item doesn't appear or invoking it does nothing:
   ```
   Every invocation logs the incoming pasteboard types, the plain text it read, and
   whether writing back succeeded.
+- **"No plain text on pasteboard — select some text and try again."** — you'll see this
+  if the Service is invoked without an active text selection (or the selection has no
+  plain-text representation). Select some text first.
 
 ---
 
