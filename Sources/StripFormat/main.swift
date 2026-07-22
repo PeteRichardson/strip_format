@@ -3,7 +3,10 @@ import os
 
 private let serviceLog = Logger(subsystem: "com.peterichardson.stripformat", category: "service")
 
-class ServiceProvider: NSObject {
+// `final`: nothing subclasses this, and AppKit only ever dispatches to it directly by
+// Objective-C selector (see `stripFormat` below), so there's no inheritance design to keep
+// dynamic dispatch open for.
+final class ServiceProvider: NSObject {
     @objc func stripFormat(
         _ pboard: NSPasteboard,
         userData: String,
