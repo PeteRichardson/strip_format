@@ -8,6 +8,11 @@ let package = Package(
         .executableTarget(
             name: "StripFormat",
             path: "Sources/StripFormat"
+        ),
+        .testTarget(
+            name: "StripFormatTests",
+            dependencies: ["StripFormat"],
+            path: "Tests/StripFormatTests"
         )
     ]
 )
