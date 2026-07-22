@@ -202,8 +202,16 @@ sequenceDiagram
 
 - `Info.plist` declares the `NSServices` entry: menu title "Strip Text Format",
   `NSMessage` `stripFormat`, sending/returning `NSStringPboardType`. This is what makes
+<<<<<<< HEAD
   the app discoverable in the system Services menu.
 - `ServiceProvider.swift` defines `ServiceProvider`, whose `@objc stripFormat(_:userData:error:)`
+=======
+  the app discoverable in the system Services menu. It also carries
+  `CFBundleShortVersionString`/`CFBundleVersion` (marketing version and build number) for
+  tooling like codesign and notarization, even though neither affects Services
+  registration.
+- `main.swift` defines `ServiceProvider`, whose `@objc stripFormat(_:userData:error:)`
+>>>>>>> c47752a (fix: add CFBundleVersion to Info.plist)
   method signature must match the `NSMessage` name in `Info.plist` — AppKit invokes it by
   Objective-C selector name via `NSApplication.servicesProvider`, so the two stay coupled
   even though nothing in the Swift code references the plist directly. `ServiceProvider`
