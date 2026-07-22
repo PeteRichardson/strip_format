@@ -61,8 +61,10 @@ in the RTF/HTML representations is discarded in the process.
 
 The whole implementation is `ServiceProvider.stripFormat(_:userData:error:)` in
 [`Sources/StripFormat/main.swift`](Sources/StripFormat/main.swift). Each invocation logs
-via `os_log` under the subsystem `com.peterichardson.stripformat` (category `service`) —
-see [Troubleshooting](#troubleshooting) to watch it live.
+via Swift's `Logger` under the subsystem `com.peterichardson.stripformat` (category
+`service`) — deliberately logging only counts and success flags, never the clipboard text
+itself, since that could contain passwords or other sensitive data — see
+[Troubleshooting](#troubleshooting) to watch it live.
 
 ---
 

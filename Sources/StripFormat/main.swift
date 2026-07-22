@@ -1,7 +1,7 @@
 import Cocoa
-import os.log
+import os
 
-private let serviceLog = OSLog(subsystem: "com.peterichardson.stripformat", category: "service")
+private let serviceLog = Logger(subsystem: "com.peterichardson.stripformat", category: "service")
 
 class ServiceProvider: NSObject {
     @objc func stripFormat(
@@ -10,18 +10,22 @@ class ServiceProvider: NSObject {
         error: AutoreleasingUnsafeMutablePointer<NSString>
     ) {
         let incomingTypes = pboard.types?.map(\.rawValue).joined(separator: ", ") ?? "none"
-        os_log("stripFormat invoked; incoming pasteboard types: %{public}@", log: serviceLog, type: .default, incomingTypes)
+        serviceLog.debug("stripFormat invoked; incoming pasteboard types: \(incomingTypes)")
 
         guard let text = pboard.string(forType: .string) else {
-            os_log("no plain text found on pasteboard", log: serviceLog, type: .error)
+            serviceLog.error("no plain text found on pasteboard")
             error.pointee = "No plain text on pasteboard." as NSString
             return
         }
-        os_log("read plain text (%{public}d chars): %{public}@", log: serviceLog, type: .default, text.count, text)
+        // Log only the character count, never the text itself: clipboard content can carry
+        // passwords or other sensitive data, and the old os_log call logged the full string
+        // with `%{public}@`, writing it in plaintext to the system-wide unified log (visible
+        // via Console.app/`log show` and potentially bundled into a sysdiagnose).
+        serviceLog.debug("read plain text (\(text.count) chars)")
 
         pboard.clearContents()
         let ok = pboard.setString(text, forType: .string)
-        os_log("wrote plain text back to pasteboard; setString succeeded: %{public}@", log: serviceLog, type: .default, ok ? "yes" : "no")
+        serviceLog.debug("wrote plain text back to pasteboard; setString succeeded: \(ok)")
     }
 }
 
