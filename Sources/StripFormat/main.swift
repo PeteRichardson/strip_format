@@ -26,6 +26,12 @@ class ServiceProvider: NSObject {
         pboard.clearContents()
         let ok = pboard.setString(text, forType: .string)
         serviceLog.debug("wrote plain text back to pasteboard; setString succeeded: \(ok)")
+        if !ok {
+            // clearContents() has already wiped the pasteboard by this point, so a failed
+            // write leaves nothing behind — surface it via the Service's error parameter
+            // instead of returning "success" with an empty pasteboard.
+            error.pointee = "Failed to write stripped text back to the pasteboard." as NSString
+        }
     }
 }
 
