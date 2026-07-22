@@ -184,7 +184,8 @@ sequenceDiagram
 - `main.swift` defines `ServiceProvider`, whose `@objc stripFormat(_:userData:error:)`
   method signature must match the `NSMessage` name in `Info.plist` — AppKit invokes it by
   Objective-C selector name via `NSApplication.servicesProvider`, so the two stay coupled
-  even though nothing in the Swift code references the plist directly.
+  even though nothing in the Swift code references the plist directly. `ServiceProvider`
+  is declared `final` since it's never subclassed.
 
 ---
 
